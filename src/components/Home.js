@@ -13,7 +13,7 @@ const pusher = new Pusher(process.env.REACT_APP_PUSHER_KEY, {
 const Home = () => {
   const [profile, setProfile] = useState({});
   const [rate, setRate] = useState({});
-  const [error, SetError] = useState(undefined);
+  const [errors, setErrors] = useState(undefined);
 
   useEffect(() => {
     const channel = pusher.subscribe("exchange-rate");
@@ -26,8 +26,8 @@ const Home = () => {
         setProfile(response.data);
       },
       (error) => {
-        const errorMessage = ErrorService.errorMessage(error);
-        SetError(errorMessage);
+        const errorMessages = ErrorService.getErrorMessages(error);
+        setErrors(errorMessages);
       }
     );
 
@@ -36,8 +36,8 @@ const Home = () => {
         setRate(response.data);
       },
       (error) => {
-        const errorMessage = ErrorService.errorMessage(error);
-        SetError(errorMessage);
+        const errorMessages = ErrorService.errorMessage(error);
+        setErrors(errorMessages);
       }
     );
   }, []);
@@ -47,32 +47,40 @@ const Home = () => {
 
   return (
     <div className="container">
-      {error ? (
-        <div style={{ marginTop: "50px" }} align="center">
-          <h2 className="text-danger">{error}</h2>
+      {errors ? (
+        <div align="center">
+          <h2 className="text-danger">{errors}</h2>
           <Link to={"/login"} className="nav-link">
             Login
           </Link>
         </div>
       ) : (
         <div>
-          <Navbar />
-          <header className="jumbotron">
-            <h3>Welcome {currentUser.name}</h3>
+          {profile.email ? (
             <div>
-              <strong>Email:</strong> {currentUser.email}
-            </div>
-          </header>
-          <div className="col-md-12">
-            <div className="row">
-              <div className="col-md-6">
-                <h1> {exchangeRate.amount} BTC</h1>
+              <Navbar />
+              <header className="jumbotron">
+                <h3>Welcome {currentUser.name}</h3>
+                <div>
+                  <strong>Email:</strong> {currentUser.email}
+                </div>
+              </header>
+              <div className="col-md-12">
+                <div className="row">
+                  <div className="col-md-6">
+                    <h1> {exchangeRate.amount} BTC</h1>
+                  </div>
+                  <div className="col-md-6">
+                    <h1> {exchangeRate.price} USD </h1>
+                  </div>
+                </div>
               </div>
-              <div className="col-md-6">
-                <h1> {exchangeRate.price} USD </h1>
-              </div>
             </div>
-          </div>
+          ) : (
+            <div align="center" className="m-5">
+              <span className="spinner-border spinner-border-lg"></span>
+            </div>
+          )}
         </div>
       )}
     </div>

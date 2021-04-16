@@ -1,11 +1,13 @@
-const errorMessage = (error) => {
-  const errorMessage =
-    (error.response && error.response.data && error.response.data.message) ||
-    error.toString();
+const getErrorMessages = (error) => {
+  const errors = [];
+  let errorsFromApi = error.response.data.message;
+  Object.values(errorsFromApi).forEach((key) => {
+    errors.push(key[0]);
+  });
 
-  return errorMessage;
+  return errors;
 };
 
 export default {
-  errorMessage,
+  getErrorMessages,
 };

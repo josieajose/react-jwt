@@ -5,6 +5,8 @@ import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
 
+import ErrorService from "../services/error.service";
+
 import AuthService from "../services/auth.service";
 
 const required = (value) => {
@@ -55,8 +57,8 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [successful, setSuccessful] = useState(false);
-  const [message, setMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [errors, setErrors] = useState([]);
 
   const onChangeFullname = (e) => {
     const fullname = e.target.value;
@@ -78,32 +80,20 @@ const Register = () => {
 
     setLoading(true);
 
-    setMessage("");
-    setSuccessful(false);
-
     form.current.validateAll();
 
     if (checkBtn.current.context._errors.length === 0) {
       AuthService.register(fullname, email, password).then(
         (response) => {
-          setMessage(response.data.message);
-          setSuccessful(true);
+          setSuccessMessage(response.data.message);
         },
         (error) => {
-          const resMessage =
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString();
-            
+          const errorMessages = ErrorService.getErrorMessages(error);
+          setErrors(errorMessages);
           setLoading(false);
-          setMessage(resMessage);
-          setSuccessful(false);
         }
       );
-    }
-     else {
+    } else {
       setLoading(false);
     }
   };
@@ -112,7 +102,7 @@ const Register = () => {
     <div className="col-md-12">
       <div className="card card-container">
         <Form onSubmit={handleRegister} ref={form}>
-          {!successful && (
+          {!successMessage && (
             <div>
               <div className="form-group">
                 <label htmlFor="fullname">Fullname</label>
@@ -164,15 +154,20 @@ const Register = () => {
             </div>
           )}
 
-          {message && (
+          {errors && (
             <div className="form-group">
-              <div
-                className={
-                  successful ? "alert alert-success" : "alert alert-danger"
-                }
-                role="alert"
-              >
-                {message}
+              {errors.map((item, key) => (
+                <div className="alert alert-danger" role="alert" key={key}>
+                  {item}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="form-group">
+              <div className="alert alert-success" role="alert">
+                {successMessage}
               </div>
             </div>
           )}

@@ -4,6 +4,7 @@ import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import AuthService from "../services/auth.service";
+import ErrorService from "../services/error.service";
 
 const required = (value) => {
   if (!value) {
@@ -22,7 +23,7 @@ const Login = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState([]);
 
   const onChangeEmail = (e) => {
     const email = e.target.value;
@@ -37,7 +38,6 @@ const Login = (props) => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    setMessage("");
     setLoading(true);
 
     form.current.validateAll();
@@ -48,15 +48,9 @@ const Login = (props) => {
           props.history.push("/profile");
         },
         (error) => {
-          const resMessage =
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString();
-
+          const errorMessages = ErrorService.getErrorMessages(error);
+          setErrors(errorMessages);
           setLoading(false);
-          setMessage(resMessage);
         }
       );
     } else {
@@ -102,19 +96,21 @@ const Login = (props) => {
             </button>
           </div>
 
-          {message && (
+          {errors && (
             <div className="form-group">
-              <div className="alert alert-danger" role="alert">
-                {message}
-              </div>
+              {errors.map((item, key) => (
+                <div className="alert alert-danger" role="alert" key={key}>
+                  {item}
+                </div>
+              ))}
             </div>
           )}
           <CheckButton style={{ display: "none" }} ref={checkBtn} />
         </Form>
         <div align="center">
-        <Link to={"/register"} className="nav-link">
-          Register an account
-        </Link>
+          <Link to={"/register"} className="nav-link">
+            Register an account
+          </Link>
         </div>
       </div>
     </div>
