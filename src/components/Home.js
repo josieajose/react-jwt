@@ -36,7 +36,7 @@ const Home = () => {
         setRate(response.data);
       },
       (error) => {
-        const errorMessages = ErrorService.errorMessage(error);
+        const errorMessages = ErrorService.getErrorMessages(error);
         setErrors(errorMessages);
       }
     );
