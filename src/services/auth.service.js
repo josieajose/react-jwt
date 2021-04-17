@@ -11,12 +11,6 @@ const register = (name, email, password) => {
   });
 };
 
-const emailExists = (email) => {
-  return axios.post(API_URL + "email-exist", {
-    email
-  });
-}
-
 const login = (email, password) => {
   return axios
     .post(API_URL + "login", {
@@ -53,6 +47,5 @@ export default {
   login,
   logout,
   deleteUser,
-  emailExists,
   getCurrentUser,
 };
